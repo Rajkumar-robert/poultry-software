@@ -1,0 +1,4 @@
+electron-app-win32-x64/resources/app.asar filter=lfs diff=lfs merge=lfs -text
+electron-app-win32-x64/electron-app.exe filter=lfs diff=lfs merge=lfs -text
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.asar filter=lfs diff=lfs merge=lfs -text

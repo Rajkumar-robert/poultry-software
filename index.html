@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STL Batch Automation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Include jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Include html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+</head>
+
+<body class="flex flex-col justify-center ">
+  <div class="flex justify-between">
+    <div>
+      <div class="w-[60px] m-4">
+      <img src="./shanthi_logo_e.jpg" alt="">
+    </div>
+    <h1 class="text-2xl font-bold text-gray-800 ml-8 mb-6">Reports</h1>
+    </div>
+    
+    <div class="w-[120px] m-4">
+      <img src="./shanthi_logo.jpg" alt="">
+    </div>
+
+  </div>
+
+
+  <div class="w-full px-8 bg-white">
+
+    <!-- <h1 class="text-2xl font-bold text-gray-800 mb-6">Reports</h1> -->
+    <!-- CSV Upload and Query Form -->
+    <div class="flex space-x-8">
+      <!-- CSV Upload Section -->
+
+      <form id="csvUploadForm">
+        <div class="w-fit shadow-md rounded-lg py-5 px-2 h-full">
+
+
+          <div class="mb-8 flex flex-col w-full items-center justify-center space-y-4">
+            <h3 class="block text-gray-700 text-sm font-bold w-[150px] " >
+              Upload File
+            </h3>
+            <input type="file" id="xlsFile" name="xlsFile" accept=".xls,.xlsx"
+              class="block w-fit text-sm text-gray-500  file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+            <button id="uploadBtn" type="submit"
+              class="w-fit bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              Upload
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- <button id="queryButton" class="bg-red-600 text-white py-2 rounded-lg shadow-md">fetch ALL</button> -->
+
+      <form id="queryForm" class="space-y-8">
+
+        <!-- Reports Section -->
+        <div class="w-full">
+          
+          <div class="flex ">
+            <!-- Query Form Section -->
+            <div class="flex flex-col shadow-md rounded-lg p-4 ">
+              <!-- <h2 class="text-xl font-semibold text-gray-800 mb-4">Filter Date</h2> -->
+
+              <div class="w-full">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="fromDate">
+                  From Date
+                </label>
+                <input type="date" id="fromDate" name="fromDate" required value="2024-09-02"
+                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <div class="w-full">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="toDate">
+                  To Date
+                </label>
+                <input type="date" id="toDate" name="toDate" required value="2024-09-19"
+                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <button type="submit"
+                class="w-full bg-green-600 text-white py-2 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 mt-8">
+               Search
+              </button>
+            </div>
+
+
+            <div class="w-full flex justify-between space-x-8 ml-8">
+              <!-- Batch Wise Report -->
+              <div class="text-center bg-white p-4 shadow-md rounded-lg">
+                <h2 class="text-lg font-bold mb-4">Batch Wise Report</h2>
+                <div class="flex flex-col space-y-2">
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="batch-day" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Day
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="batch-shift1" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-I
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="batch-shift2" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-II
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="batch-shift3" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-III
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Recipe Wise Report -->
+              <div class="text-center bg-white p-4 shadow-md rounded-lg">
+                <h2 class="text-lg font-bold mb-4">Recipe Wise Report</h2>
+                <div class="flex flex-col space-y-2">
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="recipe-day" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Day
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="recipe-shift1" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-I
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="recipe-shift2" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-II
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="recipe-shift3" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-III
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Material Wise Report -->
+              <div class="text-center bg-white p-4 shadow-md rounded-lg">
+                <h2 class="text-lg font-bold mb-4">Material Wise Report</h2>
+                <div class="flex flex-col space-y-2">
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="material-day" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Day
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="material-shift1" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-I
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="material-shift2" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-II
+                    </span>
+                  </label>
+                  <label class="w-full">
+                    <input type="radio" name="reportType" value="material-shift3" class="hidden peer" />
+                    <span
+                      class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                      Shift-III
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              
+            </div>
+
+
+            <!-- Bagging1 Report -->
+            <!-- <div class="text-center bg-white p-4 shadow-md rounded-lg">
+              <h2 class="text-lg font-bold mb-4">Bagging1 Report</h2>
+              <div class="flex flex-col space-y-2">
+                <label class="w-full">
+                  <input type="radio" name="bagging1Report" value="day" class="hidden peer" />
+                  <span
+                    class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                    Day
+                  </span>
+                </label>
+                <label class="w-full">
+                  <input type="radio" name="bagging1Report" value="shift1" class="hidden peer" />
+                  <span
+                    class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                    Shift-I
+                  </span>
+                </label>
+                <label class="w-full">
+                  <input type="radio" name="bagging1Report" value="shift2" class="hidden peer" />
+                  <span
+                    class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                    Shift-II
+                  </span>
+                </label>
+                <label class="w-full">
+                  <input type="radio" name="bagging1Report" value="shift3" class="hidden peer" />
+                  <span
+                    class="w-full py-2 block bg-gray-200 hover:bg-gray-300 rounded-lg text-center cursor-pointer peer-checked:bg-blue-200 peer-checked:border-blue-500">
+                    Shift-III
+                  </span>
+                </label>
+              </div>
+            </div> -->
+
+
+      </form>
+
+     
+    </div>
+  </div>
+  </div>
+ 
+  <!-- Results Display Section -->
+  <div id="results" class="mt-8">
+    <h3 id="postContainerTitle" class="text-lg font-semibold text-gray-800 "></h3>
+    <div id="postContainer">
+    </div>
+  </div>
+  </div>
+
+  <div id="resultContainer" class="container mt-4 mb-10 ">
+    <div class="flex items-center my-4 gap-3">
+      <h2 id="resultTitle" class="text-xl font-bold mx-8"></h2>
+      <button id="downloadButton" class="text-white rounded-md px-8 hidden" ></button>
+      <button id="printButton" class="text-white rounded-md px-8 hidden" ></button>
+    </div>
+
+    <div id="resultTable" class="mx-8 overflow-x-auto"></div>
+  </div>
+  </div>
+  </div>
+
+
+
+  <script src="renderer.js"></script>
+  <script src="pdfDownload.js"></script>
+
+  <style>
+    /* Add basic styling to your table */
+    table {
+      border-collapse: collapse;
+      /* Merge table borders */
+      width: 100%;
+      /* Make the table full width */
+    }
+
+    th,
+    td {
+      border: 1px solid #000;
+      /* Add solid border to cells */
+      padding: 10px;
+      /* Add padding to cells */
+      text-align: left;
+      /* Align text to the left */
+    }
+
+    th {
+      background-color: #f2f2f2;
+      /* Light background for headers */
+    }
+  </style>
+</body>
+
+</html>
