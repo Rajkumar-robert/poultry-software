@@ -64,18 +64,30 @@ app.on('window-all-closed', () => {
 });
 
 
-// Function to handle PDF save location
-ipcMain.handle('dialog:openSaveDialog', async () => {
+// Function to handle save dialog for PDF and Excel files
+ipcMain.handle('dialog:openSaveDialog', async (event, type) => {
+  let defaultFileName = 'report';
+  let filters = [];
+
+  if (type === 'pdf') {
+    // If the file type is PDF
+    defaultFileName += '.pdf';
+    filters = [{ name: 'PDF Files', extensions: ['pdf'] }];
+  } else if (type === 'excel') {
+    // If the file type is Excel
+    defaultFileName += '.xlsx';
+    filters = [{ name: 'Excel Files', extensions: ['xlsx'] }];
+  }
+
+  // Show the save dialog with appropriate file type filter
   const result = await dialog.showSaveDialog({
-      title: 'Save PDF',
-      defaultPath: 'report.pdf',
-      filters: [
-          { name: 'PDF Files', extensions: ['pdf'] }
-      ]
+    title: `Save ${type.toUpperCase()}`, // Show "Save PDF" or "Save Excel"
+    defaultPath: defaultFileName,
+    filters: filters
   });
 
   if (result.canceled) {
-      return null; // User canceled the dialog
+    return null; // User canceled the dialog
   }
 
   return result.filePath; // Return the chosen file path

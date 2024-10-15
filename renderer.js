@@ -189,20 +189,20 @@ ipcRenderer.on('display-query-results-batch', (event, reports) => {
     resultTitle.innerText = 'Query Results';
     
     const downloadPDFButton = document.getElementById('downloadButton'); // Create PDF download button
-    downloadPDFButton.innerHTML = "Download PDF";
+    downloadPDFButton.innerHTML = "Download Excel";
     downloadPDFButton.style.display = 'block';
     downloadPDFButton.classList.add('rounded-md','bg-blue-500','px-8','py-2');
     downloadPDFButton.onclick = () => {
-        downloadPDF();  
+        downloadPDF("batch");  
     }; 
     
-    const printPDFButton = document.getElementById('printButton'); // Create PDF print button
-    printPDFButton.innerHTML = "Print PDF";
-    printPDFButton.style.display = 'block';
-    printPDFButton.classList.add('rounded-md','bg-green-500','px-8','py-2');
-    printPDFButton.onclick = () => {
-        printPDF();  
-    }; 
+    // const printPDFButton = document.getElementById('printButton'); // Create PDF print button
+    // printPDFButton.innerHTML = "Print PDF";
+    // printPDFButton.style.display = 'block';
+    // printPDFButton.classList.add('rounded-md','bg-green-500','px-8','py-2');
+    // printPDFButton.onclick = () => {
+    //     printPDF();  
+    // }; 
 
     // Create a new table
     const table = document.createElement('table');
@@ -459,7 +459,7 @@ ipcRenderer.on('display-query-results-material', (event, reports) => {
     downloadPDFButton.style.display = 'block';
     downloadPDFButton.classList.add('rounded-md','bg-blue-500','px-8','py-2');
     downloadPDFButton.onclick = () => {
-        downloadPDF();  
+        downloadPDF("material");  
     };
 
     const printPDFButton = document.getElementById('printButton'); // Create PDF print button
@@ -570,7 +570,7 @@ ipcRenderer.on('display-query-results-recipe', (event, reports) => {
     downloadPDFButton.style.display = 'block';
     downloadPDFButton.classList.add('rounded-md','bg-blue-500','px-8','py-2');
     downloadPDFButton.onclick = () => {
-        downloadPDF();  
+        downloadPDF("recipe");  
     }; 
 
     const printPDFButton = document.getElementById('printButton'); // Create PDF print button
@@ -640,48 +640,91 @@ ipcRenderer.on('display-query-results-recipe', (event, reports) => {
 });
 
 
-async function downloadPDF() {
+async function downloadPDF(type) {
     const reportTableBody = document.getElementById('resultTable');
+    if (type === "batch") {
+        console.log("Batch");
+        // Extract table data and generate an Excel file
+        try {
+            if (!reportTableBody) {
+                console.error('Table element not found');
+                return;
+            }
+
+            // Extract the table data into a 2D array
+            const tableData = [];
+            const rows = reportTableBody.querySelectorAll('tr'); // Select all table rows
+
+            rows.forEach((row) => {
+                const rowData = [];
+                const cells = row.querySelectorAll('th, td'); // Select all header or data cells
+                cells.forEach((cell) => {
+                    rowData.push(cell.innerText); // Push the cell content into row data array
+                });
+                tableData.push(rowData); // Push the row data array into table data array
+            });
+
+            // Create a new workbook and add the table data to a worksheet
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.aoa_to_sheet(tableData); // aoa_to_sheet converts 2D array to worksheet
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+            // Open save dialog to choose the location for saving the XLSX file
+            const filePath = await ipcRenderer.invoke('dialog:openSaveDialog', 'excel');
+            if (filePath) {
+                // Save the XLSX file to the chosen location
+                XLSX.writeFile(workbook, filePath);
+                alert('Excel file saved successfully');
+            }
+
+        } catch (error) {
+            console.error('Error generating Excel file:', error);
+        }
+
+    } else {
+        const reportTableBody = document.getElementById('resultTable');
+        if (!reportTableBody) {
+            console.error('Table element not found');
+            return;
+        }
     
-    if (!reportTableBody) {
-        console.error('Table element not found');
-        return;
-    }
-
-    // Use html2canvas to capture the table content
-    try {
-        const canvas = await html2canvas(reportTableBody);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        const imgWidth = 210 - 20; // Width of A4 page minus margins (10mm margin each side)
-        const pageHeight = 297; // Height of A4 page
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 10; // Starting position with top margin
-
-        // Add image to PDF with margins
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight); // 10mm left margin
-        heightLeft -= pageHeight - 20; // Subtracting page height and bottom margin (10mm)
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight + 10; // Adjusting for top margin
-            pdf.addPage();
+        // Use html2canvas to capture the table content
+        try {
+            const canvas = await html2canvas(reportTableBody);
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgWidth = 210 - 20; // Width of A4 page minus margins (10mm margin each side)
+            const pageHeight = 297; // Height of A4 page
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 10; // Starting position with top margin
+    
+            // Add image to PDF with margins
             pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight); // 10mm left margin
-            heightLeft -= pageHeight - 20; // Adjust for margins
+            heightLeft -= pageHeight - 20; // Subtracting page height and bottom margin (10mm)
+    
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight + 10; // Adjusting for top margin
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight); // 10mm left margin
+                heightLeft -= pageHeight - 20; // Adjust for margins
+            }
+    
+            // Open save dialog
+            const filePath = await ipcRenderer.invoke('dialog:openSaveDialog', 'pdf');
+            if (filePath) {
+                pdf.save(filePath); // Save the PDF to the chosen location
+                alert('PDF saved successfully');
+            }
+    
+    
+        } catch (error) {
+            console.error('Error generating PDF:', error);
         }
-
-        // Open save dialog
-        const filePath = await ipcRenderer.invoke('dialog:openSaveDialog');
-        if (filePath) {
-            pdf.save(filePath); // Save the PDF to the chosen location
-            alert('PDF saved successfully');
-        }
-
-
-    } catch (error) {
-        console.error('Error generating PDF:', error);
     }
+    
+   
 }
 
 async function printPDF() {
