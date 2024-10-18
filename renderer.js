@@ -189,9 +189,9 @@ ipcRenderer.on('display-query-results-batch', (event, reports) => {
     resultTitle.innerText = 'Query Results';
     
     const downloadPDFButton = document.getElementById('downloadButton'); // Create PDF download button
+    downloadPDFButton.classList.add('rounded-md','bg-blue-500','px-8','py-2');
     downloadPDFButton.innerHTML = "Download Excel";
     downloadPDFButton.style.display = 'block';
-    downloadPDFButton.classList.add('rounded-md','bg-blue-500','px-8','py-2');
     downloadPDFButton.onclick = () => {
         downloadPDF("batch");  
     }; 
